@@ -183,8 +183,9 @@ app.get('/api/cifra', async (req, res) => {
         const artistName = $('h2.t3 a').first().text().trim();
 
         // 3. Extract Original Tone
-        let originalToneText = $('#js-cifra-tom').text().trim() ||
-            $('a.js-modal-tom').text().trim() ||
+        // 3. Extract Original Tone
+        let originalToneText = $('#cifra_tom a').text().trim() ||
+            $('#js-cifra-tom').text().trim() ||
             $('.cifra-tom').text().trim() || 'C'; // Default fallback
 
         // Clean up tone string (e.g. "Tom: Db")

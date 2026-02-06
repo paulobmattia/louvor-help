@@ -230,15 +230,8 @@ function renderSetlist() {
         const key = getKey(song);
 
         // Smart Icon Logic
-        let cifraLink = '';
         if (song.cifraUrl) {
-            if (song.smartKeyIndex !== undefined) {
-                const baseUrl = song.cifraUrl.split('#')[0].split('?')[0];
-                const smartUrl = `${baseUrl}?capo=0#key=${song.smartKeyIndex}`;
-                cifraLink = `<a href="${smartUrl}" target="_blank" class="ready" title="Tom verificado"><i class="ph ph-check-circle"></i> Cifra (${key})</a>`;
-            } else {
-                cifraLink = `<button class="btn-link" onclick="openSmartCifra(this, ${index})"><i class="ph ph-music-notes-simple"></i> Cifra (${key})</button>`;
-            }
+            cifraLink = `<span class="ready" title="Cifra disponível para PDF"><i class="ph ph-check-circle"></i> Disponível</span>`;
         }
 
         const videoLink = song.videoUrl ? `<a href="${song.videoUrl}" target="_blank"><i class="ph ph-video"></i> Vídeo</a>` : '';
