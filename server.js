@@ -206,10 +206,26 @@ app.get('/api/cifra', async (req, res) => {
         let finalTone = formattedOriginalTone;
 
         if (targetTone && targetTone !== '-' && targetTone !== formattedOriginalTone) {
-            log(`Transposing from ${formattedOriginalTone} to ${targetTone}`);
+
+            let targetForCalc = targetTone;
+            const originalIsMinor = formattedOriginalTone.endsWith('m');
+            const targetIsMinor = targetTone.endsWith('m');
+
+            // MUSIC THEORY FIX: Adjust for Relative Minor
+            if (originalIsMinor && !targetIsMinor) {
+                const tIndex = getSemitoneIndex(targetTone);
+                if (tIndex !== -1) {
+                    let relIndex = (tIndex - 3);
+                    if (relIndex < 0) relIndex += 12;
+                    targetForCalc = NOTAS[relIndex] + 'm';
+                    log(`Theory Fix: Original(${formattedOriginalTone}) is Minor, Target(${targetTone}) is Major. Using Rel Minor(${targetForCalc}).`);
+                }
+            }
+
+            log(`Transposing from ${formattedOriginalTone} to ${targetForCalc}`);
 
             const idxOriginal = getSemitoneIndex(formattedOriginalTone);
-            const idxTarget = getSemitoneIndex(targetTone);
+            const idxTarget = getSemitoneIndex(targetForCalc);
 
             if (idxOriginal !== -1 && idxTarget !== -1) {
                 const semitoneDiff = idxTarget - idxOriginal;
