@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Louvor Help | Setlist Manager</title>
+
+    <!-- Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons: Phosphor -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- PDF Lib -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="app-header">
+        <div class="logo">
+            <i class="ph ph-music-notes-simple"></i>
+            <span>Louvor Help</span>
+        </div>
+        <div class="minister-selector">
+            <button class="minister-card" data-minister="masculino">
+                <i class="ph ph-user"></i>
+                <span>Homem</span>
+            </button>
+            <button class="minister-card" data-minister="feminino">
+                <i class="ph ph-user"></i>
+                <span>Mulher</span>
+            </button>
+            <button class="minister-card" data-minister="kaianne">
+                <i class="ph ph-star"></i>
+                <span>Kaianne</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Search Section -->
+        <section id="searchSection" class="search-section">
+            <div class="search-container">
+                <i class="ph ph-magnifying-glass search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Buscar música ou banda..." autocomplete="off">
+            </div>
+            <div id="searchResults" class="search-results"></div>
+        </section>
+
+        <!-- Setlist Section -->
+        <section class="setlist-section">
+            <div class="section-header">
+                <h2>Setlist Atual <span id="songCount">(0)</span></h2>
+                <div id="actionsSection" class="actions hidden">
+                    <button id="btnClear" class="btn-secondary">
+                        <i class="ph ph-trash"></i> Limpar
+                    </button>
+                    <button id="btnGeneratePDF" class="btn-primary">
+                        <i class="ph ph-file-pdf"></i> Gerar PDF
+                    </button>
+                </div>
+            </div>
+
+            <div id="setlistContainer" class="setlist-container">
+                <p class="empty-state">
+                    <i class="ph ph-playlist"></i>
+                    Selecione um ministro acima para começar
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Data & Scripts -->
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
