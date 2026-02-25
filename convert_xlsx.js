@@ -7,8 +7,14 @@ const jsPath = path.join(__dirname, 'data.js');
 
 try {
     const workbook = xlsx.readFile(excelPath);
-    const sheetName = workbook.SheetNames[0];
+    // Find the sheet named 'cifras' (case-insensitive)
+    let sheetName = workbook.SheetNames.find(n => n.toLowerCase() === 'cifras');
+    if (!sheetName) {
+        // Fallback to the second sheet if it exists, or the first one
+        sheetName = workbook.SheetNames.length > 1 ? workbook.SheetNames[1] : workbook.SheetNames[0];
+    }
     const sheet = workbook.Sheets[sheetName];
+    console.log(`Reading data from sheet: ${sheetName}`);
 
     const data = xlsx.utils.sheet_to_json(sheet, { defval: "" });
 
