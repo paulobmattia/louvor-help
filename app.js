@@ -137,10 +137,29 @@ function clearSetlist() {
 }
 
 function getKey(song) {
+    if (song.manualKey) return song.manualKey;
     if (state.minister === 'masculino') return song.tomMasculino || '-';
     if (state.minister === 'feminino') return song.tomFeminino || '-';
     if (state.minister === 'kaianne') return song.tomKaianne || song.tomFeminino || '-';
     return '-';
+}
+
+function transposeSong(index, direction) {
+    const song = state.setlist[index];
+    let currentKey = getKey(song);
+    if (!currentKey || currentKey === '-') return;
+
+    const allKeys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    let isMinor = currentKey.toLowerCase().endsWith('m');
+    let baseNote = currentKey.replace(/m$/i, '').toUpperCase();
+
+    let keyIdx = allKeys.indexOf(baseNote);
+    if (keyIdx === -1) return;
+
+    keyIdx = (keyIdx + direction + 12) % 12;
+    song.manualKey = allKeys[keyIdx] + (isMinor ? 'm' : '');
+
+    renderSetlist();
 }
 
 function cleanKey(key) {
@@ -242,7 +261,11 @@ function renderSetlist() {
                 <div class="item-info">
                     <div class="item-name">${song.nome}</div>
                     <div class="item-details">
-                        <span class="item-key">${key}</span>
+                        <div class="item-key-group">
+                            <button class="btn-transpose" onclick="transposeSong(${index}, -1)" title="Abaixar Tom"><i class="ph ph-minus"></i></button>
+                            <span class="item-key">${key}</span>
+                            <button class="btn-transpose" onclick="transposeSong(${index}, 1)" title="Subir Tom"><i class="ph ph-plus"></i></button>
+                        </div>
                         <span>${song.banda}</span>
                     </div>
                     <div class="item-links">${cifraLink} ${videoLink}</div>
@@ -386,4 +409,5 @@ async function generatePDF() {
 }
 
 window.removeFromSetlist = removeFromSetlist;
+window.transposeSong = transposeSong;
 document.addEventListener('DOMContentLoaded', init);

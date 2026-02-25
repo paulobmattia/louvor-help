@@ -57,8 +57,10 @@ body {
     justify-content: center;
 }
 
-.logo i {
-    font-size: 1.5rem;
+.app-logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
 }
 
 .minister-selector {
@@ -368,6 +370,33 @@ button {
     border-radius: 3px;
     font-weight: 600;
     color: var(--text-primary);
+}
+
+.item-key-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface);
+    border-radius: 4px;
+}
+
+.btn-transpose {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    padding: 2px;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.btn-transpose:hover {
+    background: #e2e8f0;
+    color: var(--primary);
 }
 
 .item-links {
