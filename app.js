@@ -138,10 +138,17 @@ function clearSetlist() {
 
 function getKey(song) {
     if (song.manualKey) return song.manualKey;
-    if (state.minister === 'masculino') return song.tomMasculino || '-';
-    if (state.minister === 'feminino') return song.tomFeminino || '-';
-    if (state.minister === 'kaianne') return song.tomKaianne || song.tomFeminino || '-';
-    return '-';
+
+    let key = '-';
+    if (state.minister === 'masculino') key = song.tomMasculino;
+    else if (state.minister === 'feminino') key = song.tomFeminino;
+    else if (state.minister === 'kaianne') key = song.tomKaianne;
+
+    // Fallbacks Se o tom principal ou o tom Kaianne/Masculino não existir
+    if (!key || key === '-') key = song.tomFeminino;
+    if (!key || key === '-') key = song.tomMasculino;
+
+    return key || '-';
 }
 
 function transposeSong(index, direction) {
