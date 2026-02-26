@@ -19,10 +19,10 @@ const SONGS_DATA = [
     "videoUrl": "https://www.youtube.com/watch?v=zC67TsJAu3c"
   },
   {
-    "nome": "Aclame ao Senhor",
+    "nome": "B",
     "banda": "Diante do trono",
     "tomFeminino": "A",
-    "tomMasculino": "",
+    "tomMasculino": "B",
     "tomKaianne": "",
     "cifraUrl": "https://www.cifraclub.com.br/igreja-batista-da-lagoinha/aclame-ao-senhor/",
     "videoUrl": "https://www.youtube.com/watch?v=U4l40DvaeGw&list=RDU4l40DvaeGw&start_radio=1"
@@ -942,7 +942,7 @@ const SONGS_DATA = [
     "tomFeminino": "D",
     "tomMasculino": "A",
     "tomKaianne": "A",
-    "cifraUrl": "https://www.cifraclub.com.br/drops-gl-adolescentes/maravilhosa-graca/",
+    "cifraUrl": "https://www.cifraclub.com.br/comunidade-da-graca/maravilhosa-graca-this-is-amazing-grace-phil-wickham/",
     "videoUrl": "https://youtu.be/XjZQHVjJO8E?si=7d1K3ygVfG7l144A"
   },
   {
