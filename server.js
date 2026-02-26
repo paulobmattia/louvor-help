@@ -199,7 +199,7 @@ app.get('/api/cifra', async (req, res) => {
         let preContent = $('pre').html();
 
         if (!preContent) {
-            throw new Error('Cifra content <pre> not found.');
+            return res.status(404).json({ success: false, error: 'Cifra não encontrada no site (link pode estar quebrado).' });
         }
 
         // 5. Transpose ?

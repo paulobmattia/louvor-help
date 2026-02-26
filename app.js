@@ -360,7 +360,15 @@ async function generatePDF() {
         try {
             // FETCH PDF CONTENT
             const response = await fetch(`/api/cifra?url=${encodeURIComponent(song.cifraUrl)}&targetTone=${encodeURIComponent(key)}`);
-            if (!response.ok) throw new Error('Falha no servidor');
+
+            if (!response.ok) {
+                let errMsg = 'Falha no servidor';
+                try {
+                    const errJson = await response.json();
+                    if (errJson.error) errMsg = errJson.error;
+                } catch (e) { }
+                throw new Error(errMsg);
+            }
 
             const data = await response.json();
 
