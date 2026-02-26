@@ -19,7 +19,7 @@ const SONGS_DATA = [
     "videoUrl": "https://www.youtube.com/watch?v=zC67TsJAu3c"
   },
   {
-    "nome": "B",
+    "nome": "Aclame ao Senhor",
     "banda": "Diante do trono",
     "tomFeminino": "A",
     "tomMasculino": "B",
