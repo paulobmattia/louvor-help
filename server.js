@@ -41,10 +41,11 @@ function getSemitoneIndex(note) {
     const match = note.match(/^([A-Ga-g])(#|b)?/);
     if (!match) return -1;
 
-    let root = match[0].toUpperCase();
+    // Build root preserving lowercase 'b' for flat lookup
+    let root = match[1].toUpperCase() + (match[2] || '');
     if (match[2] === 'b') {
         // Convert flats to sharps for standard index calculation
-        const flatMap = { 'Cb': 'B', 'Db': 'C#', 'Eb': 'D#', 'Fb': 'E', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#', 'B': 'B', 'E': 'E' };
+        const flatMap = { 'Cb': 'B', 'Db': 'C#', 'Eb': 'D#', 'Fb': 'E', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#' };
         if (flatMap[root]) root = flatMap[root];
     }
 
@@ -253,6 +254,7 @@ app.get('/api/cifra', async (req, res) => {
             songName,
             artist: artistName,
             tom: finalTone,
+            originalTone: formattedOriginalTone,
             letra: preContent // This now contains HTML with <b> tags for transposed chords
         });
 

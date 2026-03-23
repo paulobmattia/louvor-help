@@ -107,18 +107,24 @@ function addToSetlist(song) {
 }
 
 async function prefetchSmartKey(song, index) {
-    if (song.smartKeyIndex !== undefined) return;
+    if (song.smartKeyIndex !== undefined && song.originalKey) return;
     const key = getKey(song);
 
     try {
         console.log(`Prefetching key for ${song.nome}...`);
-        // FIXED: Relative URL
+        // Always fetch with onlyKey to get the original tone from CifraClub
         const res = await fetch(`/api/cifra?url=${encodeURIComponent(song.cifraUrl)}&targetTone=${encodeURIComponent(key)}&onlyKey=true`);
         const data = await res.json();
 
-        if (data.success && data.finalKeyIndex !== undefined) {
-            song.smartKeyIndex = data.finalKeyIndex;
-            console.log(`Resolved key for ${song.nome}: ${data.finalKeyIndex}`);
+        if (data.success) {
+            if (data.finalKeyIndex !== undefined) {
+                song.smartKeyIndex = data.finalKeyIndex;
+            }
+            // Store the original key from CifraClub for fallback display
+            if (data.originalTone) {
+                song.originalKey = data.originalTone;
+                console.log(`Original key for ${song.nome}: ${data.originalTone}`);
+            }
             renderSetlist();
         }
     } catch (e) {
@@ -139,16 +145,17 @@ function clearSetlist() {
 function getKey(song) {
     if (song.manualKey) return song.manualKey;
 
-    let key = '-';
+    let key = '';
     if (state.minister === 'masculino') key = song.tomMasculino;
     else if (state.minister === 'feminino') key = song.tomFeminino;
     else if (state.minister === 'kaianne') key = song.tomKaianne;
 
-    // Fallbacks Se o tom principal ou o tom Kaianne/Masculino não existir
-    if (!key || key === '-') key = song.tomFeminino;
-    if (!key || key === '-') key = song.tomMasculino;
+    // Se não houver tom definido para esse ministro, usar o tom original da cifra
+    if (!key) {
+        return song.originalKey || '-';
+    }
 
-    return key || '-';
+    return key;
 }
 
 function transposeSong(index, direction) {
@@ -157,8 +164,12 @@ function transposeSong(index, direction) {
     if (!currentKey || currentKey === '-') return;
 
     const allKeys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    // Normalize flat notes to sharp equivalents for lookup
+    const flatToSharp = { 'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#', 'Cb': 'B', 'Fb': 'E' };
     let isMinor = currentKey.toLowerCase().endsWith('m');
-    let baseNote = currentKey.replace(/m$/i, '').toUpperCase();
+    let baseNote = currentKey.replace(/m$/i, '');
+    if (flatToSharp[baseNote]) baseNote = flatToSharp[baseNote];
+    baseNote = baseNote.toUpperCase();
 
     let keyIdx = allKeys.indexOf(baseNote);
     if (keyIdx === -1) return;
@@ -254,6 +265,7 @@ function renderSetlist() {
 
     elements.setlistContainer.innerHTML = state.setlist.map((song, index) => {
         const key = getKey(song);
+        const displayKey = (key && key !== '-') ? key : '...';
 
         // Smart Icon Logic
         if (song.cifraUrl) {
@@ -270,7 +282,7 @@ function renderSetlist() {
                     <div class="item-details">
                         <div class="item-key-group">
                             <button class="btn-transpose" onclick="transposeSong(${index}, -1)" title="Abaixar Tom"><i class="ph ph-minus"></i></button>
-                            <span class="item-key">${key}</span>
+                            <span class="item-key">${displayKey}</span>
                             <button class="btn-transpose" onclick="transposeSong(${index}, 1)" title="Subir Tom"><i class="ph ph-plus"></i></button>
                         </div>
                         <span>${song.banda}</span>
@@ -338,7 +350,8 @@ async function generatePDF() {
     doc.setFontSize(11);
     state.setlist.forEach((song, index) => {
         const key = getKey(song);
-        doc.text(`${index + 1}. ${song.nome} (${key})`, 20, y);
+        const displayKey = (key && key !== '-') ? key : (song.originalKey || 'Original');
+        doc.text(`${index + 1}. ${song.nome} (${displayKey})`, 20, y);
         y += 7;
     });
 
@@ -355,10 +368,12 @@ async function generatePDF() {
         doc.text(`${index}. ${song.nome}`, 20, 20);
         doc.setFontSize(12);
         doc.setFont('helvetica', 'normal');
-        doc.text(`Tom: ${key} | Banda: ${song.banda}`, 20, 28);
+        const displayKey = (key && key !== '-') ? key : (song.originalKey || 'Original');
+        doc.text(`Tom: ${displayKey} | Banda: ${song.banda}`, 20, 28);
 
         try {
             // FETCH PDF CONTENT
+            // If key is '-' (no minister key), send '-' so backend won't transpose
             const response = await fetch(`/api/cifra?url=${encodeURIComponent(song.cifraUrl)}&targetTone=${encodeURIComponent(key)}`);
 
             if (!response.ok) {
@@ -373,7 +388,7 @@ async function generatePDF() {
             const data = await response.json();
 
             if (data.success && data.letra) {
-                const tomUsado = data.tom || key;
+                const tomUsado = data.tom || displayKey;
 
                 doc.setFont('helvetica', 'italic');
                 doc.setFontSize(10);
