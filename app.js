@@ -313,21 +313,32 @@ function setupDragAndDrop() {
 }
 
 let draggedIndex = null;
+let pendingDropIndex = null;
 
 // Desktop handlers
-function handleDragStart(e) { draggedIndex = parseInt(e.target.dataset.index); e.target.classList.add('dragging'); }
-function handleDragEnd(e) { e.target.classList.remove('dragging'); }
+function handleDragStart(e) { 
+    draggedIndex = parseInt(e.target.dataset.index); 
+    e.target.classList.add('dragging'); 
+}
+
+function handleDragEnd(e) { 
+    e.target.classList.remove('dragging'); 
+    if (draggedIndex !== null && pendingDropIndex !== null && draggedIndex !== pendingDropIndex) {
+        const [moved] = state.setlist.splice(draggedIndex, 1);
+        state.setlist.splice(pendingDropIndex, 0, moved);
+        renderSetlist();
+    }
+    draggedIndex = null;
+    pendingDropIndex = null;
+}
+
 function handleDragOver(e) { e.preventDefault(); }
+
 function handleDrop(e) {
     e.preventDefault();
     const dropTarget = e.target.closest('.setlist-item');
     if (!dropTarget) return;
-    const dropIndex = parseInt(dropTarget.dataset.index);
-    if (draggedIndex !== null && draggedIndex !== dropIndex) {
-        const [moved] = state.setlist.splice(draggedIndex, 1);
-        state.setlist.splice(dropIndex, 0, moved);
-        renderSetlist();
-    }
+    pendingDropIndex = parseInt(dropTarget.dataset.index);
 }
 
 // Mobile touch handlers
@@ -420,7 +431,8 @@ function handleTouchEnd(e) {
         if (draggedIndex !== null && draggedIndex !== dropIndex) {
             const [moved] = state.setlist.splice(draggedIndex, 1);
             state.setlist.splice(dropIndex, 0, moved);
-            renderSetlist();
+            // Small delay to ensure browser repaints cleanly on touch devices
+            setTimeout(() => renderSetlist(), 10);
         }
     }
 
@@ -562,11 +574,6 @@ async function sharePDF() {
         const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
         const shareMessage = 'Acesse o setlist dessa semana! Bom ensaio!';
-
-        try {
-            await navigator.clipboard.writeText(shareMessage);
-            alert("✅ PDF pronto!\n\nA legenda foi COPIADA para seu teclado.\nBasta COLAR no WhatsApp depois de escolher o contato!");
-        } catch(e) { console.log("Clipboard not permitted"); }
 
         // Check if Web Share API with files is supported
         if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
