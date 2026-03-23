@@ -343,6 +343,26 @@ button {
     transform: scale(0.98);
 }
 
+.setlist-item.drag-over {
+    border-top: 2px solid var(--accent);
+    margin-top: 10px;
+}
+
+.touch-clone {
+    position: fixed;
+    z-index: 9999;
+    opacity: 0.9;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    pointer-events: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
 .item-order {
     font-weight: 700;
     color: var(--text-secondary);

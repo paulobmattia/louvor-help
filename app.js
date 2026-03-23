@@ -302,25 +302,130 @@ function renderSetlist() {
 function setupDragAndDrop() {
     const items = elements.setlistContainer.querySelectorAll('.setlist-item');
     items.forEach(item => {
+        // Desktop drag
         item.addEventListener('dragstart', handleDragStart);
         item.addEventListener('dragend', handleDragEnd);
         item.addEventListener('dragover', handleDragOver);
         item.addEventListener('drop', handleDrop);
+        // Mobile touch
+        item.addEventListener('touchstart', handleTouchStart, { passive: false });
     });
 }
 
 let draggedIndex = null;
+
+// Desktop handlers
 function handleDragStart(e) { draggedIndex = parseInt(e.target.dataset.index); e.target.classList.add('dragging'); }
 function handleDragEnd(e) { e.target.classList.remove('dragging'); }
 function handleDragOver(e) { e.preventDefault(); }
 function handleDrop(e) {
     e.preventDefault();
-    const dropIndex = parseInt(e.target.closest('.setlist-item').dataset.index);
+    const dropTarget = e.target.closest('.setlist-item');
+    if (!dropTarget) return;
+    const dropIndex = parseInt(dropTarget.dataset.index);
     if (draggedIndex !== null && draggedIndex !== dropIndex) {
         const [moved] = state.setlist.splice(draggedIndex, 1);
         state.setlist.splice(dropIndex, 0, moved);
         renderSetlist();
     }
+}
+
+// Mobile touch handlers
+let touchStartY = 0;
+let touchDragItem = null;
+let touchClone = null;
+let touchTimeout = null;
+let touchActive = false;
+
+function handleTouchStart(e) {
+    const item = e.target.closest('.setlist-item');
+    if (!item) return;
+    // Ignore touches on buttons (transpose, remove)
+    if (e.target.closest('button') || e.target.closest('a')) return;
+
+    touchStartY = e.touches[0].clientY;
+    touchDragItem = item;
+    draggedIndex = parseInt(item.dataset.index);
+
+    // Long press to initiate drag (300ms)
+    touchTimeout = setTimeout(() => {
+        touchActive = true;
+        item.classList.add('dragging');
+
+        // Create floating clone
+        touchClone = item.cloneNode(true);
+        touchClone.classList.add('touch-clone');
+        const rect = item.getBoundingClientRect();
+        touchClone.style.width = rect.width + 'px';
+        touchClone.style.left = rect.left + 'px';
+        touchClone.style.top = rect.top + 'px';
+        document.body.appendChild(touchClone);
+
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        document.addEventListener('touchend', handleTouchEnd);
+    }, 300);
+
+    // Cancel long press if finger moves too much
+    const cancelCheck = (ev) => {
+        if (Math.abs(ev.touches[0].clientY - touchStartY) > 10) {
+            clearTimeout(touchTimeout);
+            document.removeEventListener('touchmove', cancelCheck);
+        }
+    };
+    document.addEventListener('touchmove', cancelCheck, { passive: true });
+}
+
+function handleTouchMove(e) {
+    if (!touchActive || !touchClone) return;
+    e.preventDefault();
+    const y = e.touches[0].clientY;
+    touchClone.style.top = y - 30 + 'px';
+
+    // Highlight drop target
+    const items = elements.setlistContainer.querySelectorAll('.setlist-item');
+    items.forEach(it => it.classList.remove('drag-over'));
+    const target = document.elementFromPoint(e.touches[0].clientX, y);
+    const dropItem = target ? target.closest('.setlist-item') : null;
+    if (dropItem && dropItem !== touchDragItem) {
+        dropItem.classList.add('drag-over');
+    }
+}
+
+function handleTouchEnd(e) {
+    clearTimeout(touchTimeout);
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('touchend', handleTouchEnd);
+
+    if (!touchActive) return;
+    touchActive = false;
+
+    // Find drop target
+    const y = e.changedTouches[0].clientY;
+    const x = e.changedTouches[0].clientX;
+
+    // Clean up clone
+    if (touchClone) {
+        touchClone.remove();
+        touchClone = null;
+    }
+
+    // Clean up styles
+    const items = elements.setlistContainer.querySelectorAll('.setlist-item');
+    items.forEach(it => { it.classList.remove('dragging'); it.classList.remove('drag-over'); });
+
+    const target = document.elementFromPoint(x, y);
+    const dropItem = target ? target.closest('.setlist-item') : null;
+    if (dropItem) {
+        const dropIndex = parseInt(dropItem.dataset.index);
+        if (draggedIndex !== null && draggedIndex !== dropIndex) {
+            const [moved] = state.setlist.splice(draggedIndex, 1);
+            state.setlist.splice(dropIndex, 0, moved);
+            renderSetlist();
+        }
+    }
+
+    touchDragItem = null;
+    draggedIndex = null;
 }
 
 async function buildPDF(statusCallback) {
@@ -457,6 +562,11 @@ async function sharePDF() {
         const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
         const shareMessage = 'Acesse o setlist dessa semana! Bom ensaio!';
+
+        try {
+            await navigator.clipboard.writeText(shareMessage);
+            alert("✅ PDF pronto!\n\nA legenda foi COPIADA para seu teclado.\nBasta COLAR no WhatsApp depois de escolher o contato!");
+        } catch(e) { console.log("Clipboard not permitted"); }
 
         // Check if Web Share API with files is supported
         if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
