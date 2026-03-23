@@ -15,7 +15,8 @@ const elements = {
     songCount: document.getElementById('songCount'),
     actionsSection: document.getElementById('actionsSection'),
     btnClear: document.getElementById('btnClear'),
-    btnGeneratePDF: document.getElementById('btnGeneratePDF')
+    btnGeneratePDF: document.getElementById('btnGeneratePDF'),
+    btnSharePDF: document.getElementById('btnSharePDF')
 };
 
 // ===== INITIALIZE =====
@@ -40,6 +41,7 @@ function setupEventListeners() {
 
     elements.btnClear.addEventListener('click', clearSetlist);
     elements.btnGeneratePDF.addEventListener('click', generatePDF);
+    elements.btnSharePDF.addEventListener('click', sharePDF);
 }
 
 // ===== LOGIC =====
@@ -321,11 +323,7 @@ function handleDrop(e) {
     }
 }
 
-async function generatePDF() {
-    const btnText = elements.btnGeneratePDF.innerHTML;
-    elements.btnGeneratePDF.disabled = true;
-    elements.btnGeneratePDF.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Iniciando...';
-
+async function buildPDF(statusCallback) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.setFont('courier', 'normal');
@@ -360,7 +358,7 @@ async function generatePDF() {
         const key = getKey(song);
         const index = i + 1;
 
-        elements.btnGeneratePDF.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Baixando ${index}/${state.setlist.length}...`;
+        if (statusCallback) statusCallback(index, state.setlist.length);
 
         doc.addPage();
         doc.setFont('helvetica', 'bold');
@@ -372,8 +370,6 @@ async function generatePDF() {
         doc.text(`Tom: ${displayKey} | Banda: ${song.banda}`, 20, 28);
 
         try {
-            // FETCH PDF CONTENT
-            // If key is '-' (no minister key), send '-' so backend won't transpose
             const response = await fetch(`/api/cifra?url=${encodeURIComponent(song.cifraUrl)}&targetTone=${encodeURIComponent(key)}`);
 
             if (!response.ok) {
@@ -394,22 +390,14 @@ async function generatePDF() {
                 doc.setFontSize(10);
                 doc.text(`(Cifra baixada no tom: ${tomUsado})`, 20, 35);
 
-                // Remove Link Logic, just title and content
                 doc.setTextColor(0);
-
                 doc.setFont('courier', 'normal');
                 doc.setFontSize(10);
 
-                // Convert HTML string to Plain Text for PDF
-                // Create a temporary element to strip HTML (preserving line breaks)
-                // Note: The backend checks chords in <b> tags. We want to keep them just as text.
-                // Simple regex replacer for this environment:
-                // Replace <br> with newline, then strip other tags.
                 let plainText = data.letra
                     .replace(/<br\s*\/?>/gi, '\n')
-                    .replace(/<\/?[^>]+(>|$)/g, ""); // Strip all tags (<b>, <pre>, etc)
+                    .replace(/<\/?[^>]+(>|$)/g, "");
 
-                // Decode entities usually handled by browser (e.g. &nbsp;)
                 const txt = document.createElement('textarea');
                 txt.innerHTML = plainText;
                 plainText = txt.value;
@@ -432,9 +420,80 @@ async function generatePDF() {
         }
     }
 
+    return doc;
+}
+
+async function generatePDF() {
+    const btnText = elements.btnGeneratePDF.innerHTML;
+    elements.btnGeneratePDF.disabled = true;
+    elements.btnGeneratePDF.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Iniciando...';
+
+    const doc = await buildPDF((current, total) => {
+        elements.btnGeneratePDF.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Baixando ${current}/${total}...`;
+    });
+
+    const today = new Date().toLocaleDateString('pt-BR');
     doc.save(`setlist-${today.replace(/\//g, '-')}-com-cifras.pdf`);
     elements.btnGeneratePDF.innerHTML = btnText;
     elements.btnGeneratePDF.disabled = false;
+    renderSetlist();
+}
+
+async function sharePDF() {
+    const btnText = elements.btnSharePDF.innerHTML;
+    elements.btnSharePDF.disabled = true;
+    elements.btnSharePDF.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Gerando...';
+
+    try {
+        // Build the PDF using the same logic
+        const pdfDoc = await buildPDF((current, total) => {
+            elements.btnSharePDF.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Baixando ${current}/${total}...`;
+        });
+        const today = new Date().toLocaleDateString('pt-BR');
+        const fileName = `setlist-${today.replace(/\//g, '-')}-com-cifras.pdf`;
+
+        // Get PDF as blob
+        const pdfBlob = pdfDoc.output('blob');
+        const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+        const shareMessage = 'Acesse o setlist dessa semana! Bom ensaio!';
+
+        // Check if Web Share API with files is supported
+        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+            await navigator.share({
+                title: 'Setlist - Louvor Help',
+                text: shareMessage,
+                files: [pdfFile]
+            });
+        } else if (navigator.share) {
+            // Share without file (text only)
+            await navigator.share({
+                title: 'Setlist - Louvor Help',
+                text: shareMessage
+            });
+            // Also download the PDF since we couldn't share the file
+            pdfDoc.save(fileName);
+        } else {
+            // Fallback: download + open WhatsApp with text
+            pdfDoc.save(fileName);
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(shareMessage)}`;
+            window.open(waUrl, '_blank');
+        }
+    } catch (error) {
+        if (error.name !== 'AbortError') {
+            console.error('Erro ao compartilhar:', error);
+            alert('Erro ao compartilhar. O PDF será baixado normalmente.');
+            // Fallback download
+            try {
+                const pdfDoc = await buildPDF();
+                const today = new Date().toLocaleDateString('pt-BR');
+                pdfDoc.save(`setlist-${today.replace(/\//g, '-')}-com-cifras.pdf`);
+            } catch(e) { console.error(e); }
+        }
+    }
+
+    elements.btnSharePDF.innerHTML = btnText;
+    elements.btnSharePDF.disabled = false;
     renderSetlist();
 }
 

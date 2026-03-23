@@ -263,6 +263,14 @@ button {
     cursor: wait;
 }
 
+.btn-share {
+    background: #25D366;
+}
+
+.btn-share:hover {
+    background: #1da851;
+}
+
 .btn-secondary {
     background: white;
     border: 1px solid var(--border);
