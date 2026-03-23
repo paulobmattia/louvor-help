@@ -374,6 +374,7 @@ function handleTouchStart(e) {
 
         document.addEventListener('touchmove', handleTouchMove, { passive: false });
         document.addEventListener('touchend', handleTouchEnd);
+        document.addEventListener('touchcancel', handleTouchEnd);
     }, 300);
 
     // Cancel long press if finger moves too much
@@ -406,23 +407,24 @@ function handleTouchEnd(e) {
     clearTimeout(touchTimeout);
     document.removeEventListener('touchmove', handleTouchMove);
     document.removeEventListener('touchend', handleTouchEnd);
+    document.removeEventListener('touchcancel', handleTouchEnd);
 
     if (!touchActive) return;
     touchActive = false;
 
-    // Find drop target
-    const y = e.changedTouches[0].clientY;
-    const x = e.changedTouches[0].clientX;
-
-    // Clean up clone
+    // Clean up clone early to prevent ghost
     if (touchClone) {
         touchClone.remove();
         touchClone = null;
     }
 
-    // Clean up styles
+    // Clean up styles immediately
     const items = elements.setlistContainer.querySelectorAll('.setlist-item');
     items.forEach(it => { it.classList.remove('dragging'); it.classList.remove('drag-over'); });
+
+    // Find drop target
+    const y = e.changedTouches ? e.changedTouches[0].clientY : touchStartY;
+    const x = e.changedTouches ? e.changedTouches[0].clientX : 0;
 
     const target = document.elementFromPoint(x, y);
     const dropItem = target ? target.closest('.setlist-item') : null;
@@ -431,8 +433,7 @@ function handleTouchEnd(e) {
         if (draggedIndex !== null && draggedIndex !== dropIndex) {
             const [moved] = state.setlist.splice(draggedIndex, 1);
             state.setlist.splice(dropIndex, 0, moved);
-            // Small delay to ensure browser repaints cleanly on touch devices
-            setTimeout(() => renderSetlist(), 10);
+            renderSetlist();
         }
     }
 
