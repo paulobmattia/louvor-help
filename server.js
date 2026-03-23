@@ -194,7 +194,18 @@ app.get('/api/cifra', async (req, res) => {
 
         log(`Original Tone found: ${formattedOriginalTone}`);
 
+        // Handle Capotraste (Chord Shape)
+        let baseChordTone = formattedOriginalTone;
+        const fullTomText = $('#cifra_tom').text().trim() || $('#js-cifra-tom').text().trim();
+        const shapeMatch = fullTomText.match(/forma dos acordes no tom de ([A-G][#b]?m?)/i);
+        if (shapeMatch) {
+            baseChordTone = shapeMatch[1];
+            log(`Capo detected. Original: ${formattedOriginalTone}, Shape Tone: ${baseChordTone}`);
+        }
+
         // 4. Extract Cifra Content
+        // Remove tablatures before extracting HTML
+        $('.tab').remove();
         // CifraClub stores the cifra in a <pre> tag.
         // Chords are usually in <b> tags inside the <pre>.
         let preContent = $('pre').html();
@@ -223,9 +234,10 @@ app.get('/api/cifra', async (req, res) => {
                 }
             }
 
-            log(`Transposing from ${formattedOriginalTone} to ${targetForCalc}`);
+            log(`Transposing shapes from ${baseChordTone} to ${targetForCalc} (via Original ${formattedOriginalTone})`);
 
-            const idxOriginal = getSemitoneIndex(formattedOriginalTone);
+            // Use the base chord shape (which incorporates the capo offset) as the starting point
+            const idxOriginal = getSemitoneIndex(baseChordTone);
             const idxTarget = getSemitoneIndex(targetForCalc);
 
             if (idxOriginal !== -1 && idxTarget !== -1) {
