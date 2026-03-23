@@ -456,7 +456,7 @@ async function sharePDF() {
         const pdfBlob = pdfDoc.output('blob');
         const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-        const shareMessage = 'Acesse o setlist desse semana! Bom ensaio!';
+        const shareMessage = 'Acesse o setlist dessa semana! Bom ensaio!';
 
         // Check if Web Share API with files is supported
         if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
