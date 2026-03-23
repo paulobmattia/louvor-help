@@ -264,11 +264,13 @@ button {
 }
 
 .btn-share {
-    background: #25D366;
+    background: var(--accent);
+    padding: 0.5rem;
+    min-width: unset;
 }
 
 .btn-share:hover {
-    background: #1da851;
+    background: var(--accent-hover);
 }
 
 .btn-secondary {
