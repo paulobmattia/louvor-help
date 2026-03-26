@@ -215,22 +215,23 @@ app.get('/api/cifra', async (req, res) => {
         }
 
         // 5. Transpose ?
-        let finalTone = formattedOriginalTone;
+        let desiredTone = (targetTone && targetTone !== '-') ? targetTone : formattedOriginalTone;
+        let finalTone = desiredTone;
 
-        if (targetTone && targetTone !== '-' && targetTone !== formattedOriginalTone) {
+        if (desiredTone !== baseChordTone) {
 
-            let targetForCalc = targetTone;
+            let targetForCalc = desiredTone;
             const originalIsMinor = formattedOriginalTone.endsWith('m');
-            const targetIsMinor = targetTone.endsWith('m');
+            const targetIsMinor = desiredTone.endsWith('m');
 
             // MUSIC THEORY FIX: Adjust for Relative Minor
             if (originalIsMinor && !targetIsMinor) {
-                const tIndex = getSemitoneIndex(targetTone);
+                const tIndex = getSemitoneIndex(desiredTone);
                 if (tIndex !== -1) {
                     let relIndex = (tIndex - 3);
                     if (relIndex < 0) relIndex += 12;
                     targetForCalc = NOTAS[relIndex] + 'm';
-                    log(`Theory Fix: Original(${formattedOriginalTone}) is Minor, Target(${targetTone}) is Major. Using Rel Minor(${targetForCalc}).`);
+                    log(`Theory Fix: Original(${formattedOriginalTone}) is Minor, Target(${desiredTone}) is Major. Using Rel Minor(${targetForCalc}).`);
                 }
             }
 
