@@ -536,6 +536,11 @@ async function buildPDF(statusCallback) {
             doc.text(`Não foi possível carregar: ${error.message || 'Erro desconhecido'}`, 20, 50);
             doc.setTextColor(0);
         }
+
+        // Small delay between requests to avoid CifraClub rate-limiting
+        if (i < state.setlist.length - 1) {
+            await new Promise(r => setTimeout(r, 1500));
+        }
     }
 
     return doc;

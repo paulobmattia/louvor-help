@@ -169,13 +169,28 @@ app.get('/api/cifra', async (req, res) => {
     log(`Processing: ${url} -> Target: ${targetTone}`);
 
     try {
-        // 1. Fetch HTML
-        const response = await axios.get(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            },
-            timeout: 10000 // 10s timeout
-        });
+        // 1. Fetch HTML with retry logic (CifraClub rate-limits rapid requests)
+        let response;
+        const maxRetries = 3;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                response = await axios.get(url, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+                        'Cache-Control': 'no-cache'
+                    },
+                    timeout: 15000
+                });
+                break; // Success
+            } catch (fetchErr) {
+                log(`Attempt ${attempt}/${maxRetries} failed for ${url}: ${fetchErr.message}`);
+                if (attempt === maxRetries) throw fetchErr;
+                // Wait before retrying (1s, 2s, 3s)
+                await new Promise(r => setTimeout(r, attempt * 1000));
+            }
+        }
 
         const $ = cheerio.load(response.data);
 
