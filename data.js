@@ -1790,6 +1790,15 @@ const SONGS_DATA = [
     "tomKaianne": "",
     "cifraUrl": "https://www.cifraclub.com.br/kleber-lucas/vou-seguir-com-fe/#key=5",
     "videoUrl": "https://youtu.be/kThZpQdeX0E?si=ZVQAwpavrn7EaoTo"
+  },
+  {
+    "nome": "Vencendo vem Jesus",
+    "banda": "Harpa Cristã",
+    "tomFeminino": "",
+    "tomMasculino": "A",
+    "tomKaianne": "",
+    "cifraUrl": "https://www.cifraclub.com.br/harpa-crista/525-vencendo-vem-jesus/",
+    "videoUrl": "https://www.youtube.com/watch?v=IP954cHHYIY&t=4s"
   }
 ];
 
