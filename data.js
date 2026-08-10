@@ -263,7 +263,7 @@ const SONGS_DATA = [
   },
   {
     "nome": "Compromisso",
-    "banda": "PAV",
+    "banda": "PAV /Ângelo Torres",
     "tomFeminino": "F",
     "tomMasculino": "A",
     "tomKaianne": "D",
@@ -545,7 +545,7 @@ const SONGS_DATA = [
     "banda": "Harpa Cristã",
     "tomFeminino": "C",
     "tomMasculino": "E",
-    "tomKaianne": "F",
+    "tomKaianne": "G",
     "cifraUrl": "https://www.cifraclub.com.br/harpa-crista/espirito-enche-minha-vida/",
     "videoUrl": "https://www.youtube.com/watch?v=cTTS8ZaBxYg"
   },
@@ -593,6 +593,15 @@ const SONGS_DATA = [
     "tomKaianne": "A",
     "cifraUrl": "https://www.cifraclub.com.br/andre-valadao/eu-minha-casa/#key=7",
     "videoUrl": "https://youtu.be/1dzv1eq5CtU?si=sHm2DmQN1Kz6sGWK"
+  },
+  {
+    "nome": "Eu e minha casa",
+    "banda": "Julliany Souza",
+    "tomFeminino": "D",
+    "tomMasculino": "",
+    "tomKaianne": "",
+    "cifraUrl": "https://www.cifraclub.com.br/julliany-souza/eu-e-minha-casa-part-leo-brandao/",
+    "videoUrl": "https://youtu.be/Rxzi3DSBs6Q?is=8Kztb7bPlWA4k3Fw"
   },
   {
     "nome": "Eu me alegro em Ti",
@@ -737,6 +746,15 @@ const SONGS_DATA = [
     "tomKaianne": "A",
     "cifraUrl": "https://www.cifraclub.com.br/igreja-batista-atitude-central-da-barra/grandes-coisas/#tabs=false&instrument=keyboard",
     "videoUrl": "https://www.youtube.com/watch?v=xXqyHHrSAEA"
+  },
+  {
+    "nome": "Gratidão",
+    "banda": "Fhop / Get",
+    "tomFeminino": "",
+    "tomMasculino": "A",
+    "tomKaianne": "",
+    "cifraUrl": "https://www.cifraclub.com.br/florianopolis-house-of-prayer/gratidao/?capo=0",
+    "videoUrl": "https://youtu.be/_ELuz21qxs4?is=V3AAX9nzHvhf2GUm"
   },
   {
     "nome": "Grato sou",
@@ -1147,7 +1165,7 @@ const SONGS_DATA = [
     "nome": "Pão da vida",
     "banda": "Cláudio Claro",
     "tomFeminino": "B",
-    "tomMasculino": "D",
+    "tomMasculino": "E",
     "tomKaianne": "E",
     "cifraUrl": "https://www.cifraclub.com.br/claudio-claro/pao-da-vida/#tabs=false&instrument=keyboard",
     "videoUrl": "https://www.youtube.com/watch?v=Cd9Ua1T5sPc"
@@ -1363,7 +1381,7 @@ const SONGS_DATA = [
     "nome": "Rocha inabalável",
     "banda": "Davi Sacer",
     "tomFeminino": "A",
-    "tomMasculino": "C",
+    "tomMasculino": "",
     "tomKaianne": "D",
     "cifraUrl": "https://www.cifraclub.com.br/davi-sacer/rocha-inabalavel/#instrument=guitar",
     "videoUrl": "https://www.youtube.com/watch?v=tL0_ZF56yXI"
@@ -1585,6 +1603,15 @@ const SONGS_DATA = [
     "videoUrl": "https://www.youtube.com/watch?v=founBXufLYg"
   },
   {
+    "nome": "Teus altares",
+    "banda": "João Alexandre",
+    "tomFeminino": "",
+    "tomMasculino": "G",
+    "tomKaianne": "",
+    "cifraUrl": "https://www.cifraclub.com.br/joao-alexandre/teus-altares/",
+    "videoUrl": ""
+  },
+  {
     "nome": "Todas as coisas",
     "banda": "Fernandinho",
     "tomFeminino": "",
@@ -1738,6 +1765,15 @@ const SONGS_DATA = [
     "videoUrl": "https://www.youtube.com/watch?v=t6Pd8gXIASU"
   },
   {
+    "nome": "Vencendo vem Jesus",
+    "banda": "Harpa Cristã",
+    "tomFeminino": "",
+    "tomMasculino": "A",
+    "tomKaianne": "",
+    "cifraUrl": "https://www.cifraclub.com.br/harpa-crista/525-vencendo-vem-jesus/",
+    "videoUrl": "https://www.youtube.com/watch?v=IP954cHHYIY&t=4s"
+  },
+  {
     "nome": "Venha o teu reino",
     "banda": "Davi sacer",
     "tomFeminino": "C",
@@ -1745,6 +1781,15 @@ const SONGS_DATA = [
     "tomKaianne": "",
     "cifraUrl": "https://www.cifraclub.com.br/davi-sacer/venha-o-teu-reino/",
     "videoUrl": "https://youtu.be/dtYKIBAF7n8?si=Ou5L74HEazrahmOz"
+  },
+  {
+    "nome": "Vida aos sepulcros",
+    "banda": "Gabriela Rocha",
+    "tomFeminino": "E",
+    "tomMasculino": "G",
+    "tomKaianne": "",
+    "cifraUrl": "https://www.cifraclub.com.br/gabriela-rocha/vida-aos-sepulcros-part-elevation-worship/#google_vignette",
+    "videoUrl": "https://youtu.be/wfFTSbxyI1M?is=yFoZZnEeYPBItfz9"
   },
   {
     "nome": "Vimos adorar",
@@ -1790,15 +1835,6 @@ const SONGS_DATA = [
     "tomKaianne": "",
     "cifraUrl": "https://www.cifraclub.com.br/kleber-lucas/vou-seguir-com-fe/#key=5",
     "videoUrl": "https://youtu.be/kThZpQdeX0E?si=ZVQAwpavrn7EaoTo"
-  },
-  {
-    "nome": "Vencendo vem Jesus",
-    "banda": "Harpa Cristã",
-    "tomFeminino": "",
-    "tomMasculino": "A",
-    "tomKaianne": "",
-    "cifraUrl": "https://www.cifraclub.com.br/harpa-crista/525-vencendo-vem-jesus/",
-    "videoUrl": "https://www.youtube.com/watch?v=IP954cHHYIY&t=4s"
   }
 ];
 
