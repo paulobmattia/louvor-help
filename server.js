@@ -217,6 +217,16 @@ app.get('/api/cifra', async (req, res) => {
                 $('.cifra-tom').text().trim();
         }
 
+        // Extract root of first chord in <pre> for verification/fallback
+        let firstChordRoot = '';
+        const firstChordText = $('pre b').first().text().trim();
+        if (firstChordText) {
+            const chordMatch = firstChordText.match(/^([A-Ga-g][#b]?)/);
+            if (chordMatch) {
+                firstChordRoot = chordMatch[1].toUpperCase();
+            }
+        }
+
         // Strategy 3: Regex search in page text for "Tom: X"
         if (!originalToneText) {
             const pageText = $('body').text();
@@ -229,15 +239,9 @@ app.get('/api/cifra', async (req, res) => {
         // Clean up tone string (e.g. "Tom: Db")
         let formattedOriginalTone = originalToneText.replace(/^Tom:\s*/i, '').trim();
 
-        // Strategy 4: Fallback to root of first chord in <pre> if still empty
-        if (!formattedOriginalTone) {
-            const firstChord = $('pre b').first().text().trim();
-            if (firstChord) {
-                const chordMatch = firstChord.match(/^([A-Ga-g][#b]?)/);
-                if (chordMatch) {
-                    formattedOriginalTone = chordMatch[1].toUpperCase();
-                }
-            }
+        // Strategy 4: Fallback to first chord root if tone is empty or failed
+        if (!formattedOriginalTone && firstChordRoot) {
+            formattedOriginalTone = firstChordRoot;
         }
 
         if (!formattedOriginalTone) formattedOriginalTone = 'C';
@@ -313,6 +317,7 @@ app.get('/api/cifra', async (req, res) => {
 
         // Return Data
         res.json({
+            version: "1.0.1",
             success: true,
             songName,
             artist: artistName,
