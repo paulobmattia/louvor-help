@@ -163,6 +163,7 @@ app.get('/api/search', async (req, res) => {
 });
 
 app.get('/api/cifra', async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     const { url, targetTone } = req.query;
     if (!url) return res.status(400).json({ error: 'URL required' });
 
