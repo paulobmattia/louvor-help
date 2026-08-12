@@ -199,20 +199,54 @@ app.get('/api/cifra', async (req, res) => {
         const artistName = $('h2.t3 a').first().text().trim();
 
         // 3. Extract Original Tone
-        // 3. Extract Original Tone
-        let originalToneText = $('#cifra_tom a').text().trim() ||
-            $('#js-cifra-tom').text().trim() ||
-            $('.cifra-tom').text().trim() || 'C'; // Default fallback
+        let originalToneText = '';
+
+        // Strategy 1: #key span or #key (CifraClub new layout)
+        if ($('#key span').length > 0) {
+            originalToneText = $('#key span').first().text().trim();
+        } else if ($('#key').length > 0) {
+            const m = $('#key').text().trim().match(/Tom:\s*([A-G][#b]?m?)/i) || $('#key').text().trim().match(/Tom\s*([A-G][#b]?m?)/i);
+            if (m) originalToneText = m[1];
+        }
+
+        // Strategy 2: Legacy selectors
+        if (!originalToneText) {
+            originalToneText = $('#cifra_tom a').text().trim() ||
+                $('#js-cifra-tom').text().trim() ||
+                $('.cifra-tom').text().trim();
+        }
+
+        // Strategy 3: Regex search in page text for "Tom: X"
+        if (!originalToneText) {
+            const pageText = $('body').text();
+            const tomMatch = pageText.match(/Tom:\s*([A-G][#b]?m?)/i);
+            if (tomMatch) {
+                originalToneText = tomMatch[1];
+            }
+        }
 
         // Clean up tone string (e.g. "Tom: Db")
         let formattedOriginalTone = originalToneText.replace(/^Tom:\s*/i, '').trim();
+
+        // Strategy 4: Fallback to root of first chord in <pre> if still empty
+        if (!formattedOriginalTone) {
+            const firstChord = $('pre b').first().text().trim();
+            if (firstChord) {
+                const chordMatch = firstChord.match(/^([A-Ga-g][#b]?)/);
+                if (chordMatch) {
+                    formattedOriginalTone = chordMatch[1].toUpperCase();
+                }
+            }
+        }
+
+        if (!formattedOriginalTone) formattedOriginalTone = 'C';
 
         log(`Original Tone found: ${formattedOriginalTone}`);
 
         // Handle Capotraste (Chord Shape)
         let baseChordTone = formattedOriginalTone;
-        const fullTomText = $('#cifra_tom').text().trim() || $('#js-cifra-tom').text().trim();
-        const shapeMatch = fullTomText.match(/forma dos acordes no tom de ([A-G][#b]?m?)/i);
+        const fullTomText = $('#cifra_tom').text().trim() || $('#js-cifra-tom').text().trim() || $('#capo').text().trim() || $('body').text();
+        const shapeMatch = fullTomText.match(/forma dos acordes no tom de ([A-G][#b]?m?)/i) || fullTomText.match(/acordes no tom de ([A-G][#b]?m?)/i);
         if (shapeMatch) {
             baseChordTone = shapeMatch[1];
             log(`Capo detected. Original: ${formattedOriginalTone}, Shape Tone: ${baseChordTone}`);
