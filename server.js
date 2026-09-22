@@ -249,12 +249,42 @@ app.get('/api/cifra', async (req, res) => {
         log(`Original Tone found: ${formattedOriginalTone}`);
 
         // Handle Capotraste (Chord Shape)
-        let baseChordTone = formattedOriginalTone;
+        let keyShape = null;
+        let capoFret = 0;
+
+        // 1. Check script tags for keyShape and capo in CifraClub state data
+        $('script').each((i, el) => {
+            const text = $(el).html() || '';
+            if (text.includes('keyShape')) {
+                const m = text.match(/\\?"keyShape\\?"\s*:\s*\\?"([^\\"]+)\\?"/);
+                if (m) keyShape = m[1];
+                const capoM = text.match(/\\?"capo\\?"\s*:\s*(\d+)/);
+                if (capoM) capoFret = parseInt(capoM[1], 10);
+            }
+        });
+
+        // 2. Check DOM #capo text (e.g. "Capotraste 2ª casa")
+        const capoText = $('#capo').text().trim() || $('#cifra_capo').text().trim();
+        const capoMatch = capoText.match(/(\d+)ª\s*casa/i);
+        if (capoMatch) {
+            capoFret = parseInt(capoMatch[1], 10);
+        }
+
+        // 3. Check legacy page text for "forma dos acordes no tom de X"
         const fullTomText = $('#cifra_tom').text().trim() || $('#js-cifra-tom').text().trim() || $('#capo').text().trim() || $('body').text();
         const shapeMatch = fullTomText.match(/forma dos acordes no tom de ([A-G][#b]?m?)/i) || fullTomText.match(/acordes no tom de ([A-G][#b]?m?)/i);
         if (shapeMatch) {
-            baseChordTone = shapeMatch[1];
-            log(`Capo detected. Original: ${formattedOriginalTone}, Shape Tone: ${baseChordTone}`);
+            keyShape = shapeMatch[1];
+        }
+
+        // 4. Resolve baseChordTone
+        let baseChordTone = formattedOriginalTone;
+        if (keyShape) {
+            baseChordTone = keyShape;
+            log(`Capo detected (keyShape). Original: ${formattedOriginalTone}, Shape Tone: ${baseChordTone}, Capo fret: ${capoFret}`);
+        } else if (capoFret > 0) {
+            baseChordTone = transposeNote(formattedOriginalTone, -capoFret);
+            log(`Capo detected (fret math). Original: ${formattedOriginalTone}, Shape Tone: ${baseChordTone}, Capo fret: ${capoFret}`);
         }
 
         // 4. Extract Cifra Content
@@ -317,7 +347,7 @@ app.get('/api/cifra', async (req, res) => {
 
         // Return Data
         res.json({
-            version: "1.0.1",
+            version: "1.0.2",
             success: true,
             songName,
             artist: artistName,
