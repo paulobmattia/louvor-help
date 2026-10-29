@@ -26,6 +26,13 @@ function log(msg) {
 }
 
 // ===== TRANSPOSITION LOGIC =====
+const DESKTOP_USER_AGENTS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:131.0) Gecko/20100101 Firefox/131.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15',
+    'Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0'
+];
+
 const NOTAS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const NOTAS_FLAT = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
@@ -110,7 +117,7 @@ app.get('/api/search', async (req, res) => {
         const searchUrl = `https://www.cifraclub.com.br/?q=${encodeURIComponent(q)}`;
         const response = await axios.get(searchUrl, {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                'User-Agent': DESKTOP_USER_AGENTS[0]
             }
         });
 
@@ -170,14 +177,15 @@ app.get('/api/cifra', async (req, res) => {
     log(`Processing: ${url} -> Target: ${targetTone}`);
 
     try {
-        // 1. Fetch HTML with retry logic (CifraClub rate-limits rapid requests)
+        // 1. Fetch HTML with retry logic (CifraClub rate-limits rapid requests / WAF rotation)
         let response;
-        const maxRetries = 3;
+        const maxRetries = DESKTOP_USER_AGENTS.length;
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            const currentUA = DESKTOP_USER_AGENTS[attempt - 1];
             try {
                 response = await axios.get(url, {
                     headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                        'User-Agent': currentUA,
                         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
                         'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
                         'Cache-Control': 'no-cache'
@@ -186,7 +194,7 @@ app.get('/api/cifra', async (req, res) => {
                 });
                 break; // Success
             } catch (fetchErr) {
-                log(`Attempt ${attempt}/${maxRetries} failed for ${url}: ${fetchErr.message}`);
+                log(`Attempt ${attempt}/${maxRetries} failed for ${url} (UA: ${currentUA}): ${fetchErr.message}`);
                 if (attempt === maxRetries) throw fetchErr;
                 // Wait before retrying (1s, 2s, 3s)
                 await new Promise(r => setTimeout(r, attempt * 1000));
@@ -347,7 +355,7 @@ app.get('/api/cifra', async (req, res) => {
 
         // Return Data
         res.json({
-            version: "1.0.2",
+            version: "1.0.3",
             success: true,
             songName,
             artist: artistName,
