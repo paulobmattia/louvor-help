@@ -518,7 +518,7 @@ async function buildPDF(statusCallback) {
 
                 const txt = document.createElement('textarea');
                 txt.innerHTML = plainText;
-                plainText = txt.value.replace(/\u00A0/g, ' ');
+                plainText = txt.value.replace(/\u00A0/g, ' ').replace(/[\u200B-\u200D\uFEFF]/g, '');
 
                 const splitText = doc.splitTextToSize(plainText, 170);
                 let cursorY = 45;

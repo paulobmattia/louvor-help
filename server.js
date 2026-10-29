@@ -353,9 +353,14 @@ app.get('/api/cifra', async (req, res) => {
             }
         }
 
+        // Remove zero-width spaces injected by CifraClub that break PDF rendering
+        if (preContent) {
+            preContent = preContent.replace(/[\u200B-\u200D\uFEFF]/g, '');
+        }
+
         // Return Data
         res.json({
-            version: "1.0.3",
+            version: "1.0.4",
             success: true,
             songName,
             artist: artistName,
