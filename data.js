@@ -253,6 +253,15 @@ const SONGS_DATA = [
     "videoUrl": "https://youtu.be/EG2T7SWMu_s?si=JSTL640ycSRGsM8i"
   },
   {
+    "nome": "Celebrai com Júbilo ao Senhor",
+    "banda": "Corinhos",
+    "tomFeminino": "E",
+    "tomMasculino": "G",
+    "tomKaianne": "",
+    "cifraUrl": "https://www.cifraclub.com.br/corinhos-evangelicos/celebrai-com-jubilo/?instrument=keyboard",
+    "videoUrl": ""
+  },
+  {
     "nome": "Compromisso",
     "banda": "Corinhos",
     "tomFeminino": "G",
@@ -681,7 +690,7 @@ const SONGS_DATA = [
     "tomFeminino": "E",
     "tomMasculino": "E",
     "tomKaianne": "F",
-    "cifraUrl": "https://www.cifraclub.com.br/cantor-cristao/366-firmeza/#tabs=false&instrument=keyboard",
+    "cifraUrl": "https://www.cifraclub.com.br/cantor-cristao/366-firmeza/?instrument=keyboard&keyShape=7#tabs=false&instrument=keyboard",
     "videoUrl": "https://www.youtube.com/watch?v=w_T_fG30TFw"
   },
   {
@@ -1414,6 +1423,15 @@ const SONGS_DATA = [
     "videoUrl": "https://www.youtube.com/watch?v=JIkSQwRWfPQ"
   },
   {
+    "nome": "Salvador Maravilhoso",
+    "banda": "Gerson Borges",
+    "tomFeminino": "C",
+    "tomMasculino": "C",
+    "tomKaianne": "",
+    "cifraUrl": "https://www.cifraclub.com.br/ibab-celebracao/salvador-maravilhoso/?instrument=keyboard",
+    "videoUrl": "https://youtu.be/oKT0aAu71Dg?is=ZlknCSoR5j2tNA5z"
+  },
+  {
     "nome": "Santo pra sempre",
     "banda": "Gabriel Guedes",
     "tomFeminino": "G",
@@ -1785,8 +1803,8 @@ const SONGS_DATA = [
   {
     "nome": "Vida aos sepulcros",
     "banda": "Gabriela Rocha",
-    "tomFeminino": "E",
-    "tomMasculino": "G",
+    "tomFeminino": "D",
+    "tomMasculino": "F",
     "tomKaianne": "",
     "cifraUrl": "https://www.cifraclub.com.br/gabriela-rocha/vida-aos-sepulcros-part-elevation-worship/#google_vignette",
     "videoUrl": "https://youtu.be/wfFTSbxyI1M?is=yFoZZnEeYPBItfz9"
